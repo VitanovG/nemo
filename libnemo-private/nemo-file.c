@@ -3166,8 +3166,8 @@ compare_by_type (NemoFile *file_1, NemoFile *file_2, gboolean detailed)
 	}
 
     if (detailed) {
-        type_string_1 = nemo_file_get_detailed_type_as_string (file_1);
-        type_string_2 = nemo_file_get_detailed_type_as_string (file_2);
+        type_string_1 = nemo_file_get_extension_as_string (file_1);
+        type_string_2 = nemo_file_get_extension_as_string (file_2);
     } else {
         type_string_1 = nemo_file_get_type_as_string (file_1);
         type_string_2 = nemo_file_get_type_as_string (file_2);
@@ -3184,9 +3184,8 @@ compare_by_type (NemoFile *file_1, NemoFile *file_2, gboolean detailed)
 
 		return 0;
 	}
-
+	
 	result = g_utf8_collate (type_string_1, type_string_2);
-
 	g_free (type_string_1);
 	g_free (type_string_2);
 
@@ -7095,10 +7094,31 @@ nemo_file_get_detailed_type_as_string (NemoFile *file)
     if (nemo_file_is_broken_symbolic_link (file)) {
         return g_strdup (_("link (broken)"));
 	}
-
+	
 	return update_description_for_link (file, get_description (file, TRUE));
 }
 
+char *
+nemo_file_get_extension_as_string (NemoFile *file)
+{
+    if (file == NULL) {
+        return NULL;
+    }
+
+    if (nemo_file_is_broken_symbolic_link (file)) {
+        return g_strdup (_("link (broken)"));
+	}
+	
+	char *str, *token, *result;
+	str = g_strdup (eel_ref_str_peek(file->details->name));//strdup()
+	
+	while ((token = strsep(&str, "."))) {result = g_strdup(token);}
+	if (result == NULL) {result = "";}
+	g_free(str);
+	g_free(token);
+	
+	return result;
+}
 /**
  * nemo_file_get_file_type
  *
